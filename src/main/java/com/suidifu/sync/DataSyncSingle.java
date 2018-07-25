@@ -1,10 +1,14 @@
 package com.suidifu.sync;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
+
 import org.apache.commons.dbcp.BasicDataSource;
 
 public class DataSyncSingle {
@@ -67,16 +71,26 @@ public class DataSyncSingle {
 							|| rsmd.getColumnType(i) == Types.TINYINT) {
 						targetPstmt.setInt(i, rs.getInt(i));
 					} else if (rsmd.getColumnType(i) == Types.DATE) {
+						
+						
 						targetPstmt.setDate(i, rs.getDate(i));
 					} else if (rsmd.getColumnType(i) == Types.DOUBLE) {
 						targetPstmt.setDouble(i, rs.getDouble(i));
 					} else if (rsmd.getColumnType(i) == Types.CLOB) {
 						targetPstmt.setClob(i, rs.getClob(i));
 					} else if (rsmd.getColumnType(i) == Types.TIMESTAMP) {
-						targetPstmt.setDate(i, rs.getDate(i));
+						//targetPstmt.setDate(i, rs.getTimestamp(i));
+						targetPstmt.setTimestamp(i, rs.getTimestamp(i));				
 					} else if (rsmd.getColumnType(i) == Types.NUMERIC
 							|| rsmd.getColumnType(i) == Types.BIGINT) {
 						targetPstmt.setLong(i, rs.getLong(i));
+					}else if (rsmd.getColumnType(i) == Types.DECIMAL
+							|| rsmd.getColumnType(i) == Types.NUMERIC) {
+						BigDecimal value = new BigDecimal(rs.getDouble(i));
+						value = value.setScale(2,RoundingMode.HALF_UP);
+						targetPstmt.setFloat(i, 2);
+						targetPstmt.setDouble(i,value.doubleValue());
+					//	System.out.println("bigdecimal as double  is "+value.doubleValue());
 					}
 				}
 
